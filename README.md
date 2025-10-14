@@ -42,7 +42,9 @@ cp .env.example .env
 
 Edit `.env` and add your keys:
 - `OPENAI_API_KEY`: Your OpenAI API key
-- `RUBE_API_KEY`: Your Rube authorization key (replace REDACTED)
+- `RUBE_API_KEY`: Your Rube authorization key. Supply either the full `Bearer <token>` string from Rube or just the raw key (the server will add the `Bearer` prefix automatically).
+
+> ⚠️ Keep the `.env` file local. It is ignored by Git so that you can safely paste your real keys (for example, the ones you shared) without exposing them in the repository. If you rotate the keys later, update your local `.env` file and your Netlify environment variables.
 
 ### 4. Test locally
 
