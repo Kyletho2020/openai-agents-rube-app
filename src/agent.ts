@@ -35,13 +35,45 @@ const myAgent = new Agent({
   }
 });
 
-type WorkflowInput = { input_as_text: string };
+type ConversationMessage = {
+  role: "user" | "assistant";
+  text: string;
+};
+
+type WorkflowInput = {
+  input_as_text: string;
+  conversation_history?: ConversationMessage[];
+};
 
 // Main code entrypoint
 export const runWorkflow = async (workflow: WorkflowInput) => {
   const state = {};
 
   const conversationHistory: AgentInputItem[] = [
+    ...(workflow.conversation_history ?? []).map((message) => {
+      if (message.role === "assistant") {
+        return {
+          role: "assistant",
+          status: "completed",
+          content: [
+            {
+              type: "output_text",
+              text: message.text
+            }
+          ]
+        } satisfies AgentInputItem;
+      }
+
+      return {
+        role: "user",
+        content: [
+          {
+            type: "input_text",
+            text: message.text
+          }
+        ]
+      } satisfies AgentInputItem;
+    }),
     {
       role: "user",
       content: [
@@ -103,18 +135,30 @@ export const handler: Handler = async (event, context) => {
   try {
     const body = JSON.parse(event.body || "{}");
     const input = body.input || body.input_as_text || "";
+    const history = Array.isArray(body.conversation)
+      ? (body.conversation as ConversationMessage[])
+      : [];
 
     if (!input) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           error: "Missing input parameter. Send: { \"input\": \"your message\" }" 
         })
       };
     }
 
     // Run your workflow
-    const result = await runWorkflow({ input_as_text: input });
+    const result = await runWorkflow({
+      input_as_text: input,
+      conversation_history: history
+    });
+
+    const updatedConversation: ConversationMessage[] = [
+      ...history,
+      { role: "user", text: input },
+      { role: "assistant", text: result.output_text }
+    ];
 
     return {
       statusCode: 200,
@@ -122,9 +166,10 @@ export const handler: Handler = async (event, context) => {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*"
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         success: true,
-        output: result.output_text
+        output: result.output_text,
+        conversation: updatedConversation
       })
     };
   } catch (error: any) {
