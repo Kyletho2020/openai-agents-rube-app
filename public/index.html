@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAI Agents Rube App</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .code {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .endpoint {
+            color: #0066cc;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 OpenAI Agents with Rube MCP</h1>
+    <p>Your AI agent is running! This is a serverless API built with OpenAI Agents SDK and Rube MCP integration.</p>
+
+    <h2>📡 API Endpoint</h2>
+    <div class="code">
+        <p><span class="endpoint">POST</span> /.netlify/functions/agent</p>
+    </div>
+
+    <h2>📱 Example Request</h2>
+    <div class="code">
+        <pre>curl -X POST https://YOUR-SITE.netlify.app/.netlify/functions/agent \
+  -H "Content-Type: application/json" \
+  -d '{"input": "Help me with my tasks"}'</pre>
+    </div>
+
+    <h2>✨ Features</h2>
+    <ul>
+        <li>Access to 500+ apps via Rube MCP (Slack, GitHub, Gmail, etc.)</li>
+        <li>GPT-5 powered intelligent assistant</li>
+        <li>Works from iPhone, web, or any HTTP client</li>
+    </ul>
+
+    <h2>📚 Documentation</h2>
+    <p>View the <a href="https://github.com/Kyletho2020/openai-agents-rube-app">GitHub repository</a> for full documentation.</p>
+</body>
+</html>
