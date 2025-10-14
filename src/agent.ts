@@ -2,6 +2,19 @@ import { hostedMcpTool, Agent, AgentInputItem, Runner } from "@openai/agents";
 import { Handler } from "@netlify/functions";
 
 // Tool definitions
+const rubeAuthorization = (() => {
+  const key = process.env.RUBE_API_KEY?.trim();
+  if (!key) {
+    return "";
+  }
+
+  if (/^bearer\s+/i.test(key)) {
+    return key;
+  }
+
+  return `Bearer ${key}`;
+})();
+
 const mcp = hostedMcpTool({
   serverLabel: "Rube",
   allowedTools: [
@@ -16,9 +29,9 @@ const mcp = hostedMcpTool({
     "COMPOSIO_UPDATE_RECIPE",
     "RUBE_MANAGE_CONNECTIONS"
   ],
-  authorization: process.env.RUBE_API_KEY || "",
+  authorization: rubeAuthorization,
   requireApproval: "never",
-  serverUrl: "https://rube.app/mcp"
+  serverUrl: "https://rube.app/api/mcp"
 });
 
 const myAgent = new Agent({
@@ -129,6 +142,34 @@ export const handler: Handler = async (event, context) => {
     return {
       statusCode: 405,
       body: JSON.stringify({ error: "Method not allowed. Use POST." })
+    };
+  }
+
+  if (!process.env.OPENAI_API_KEY) {
+    return {
+      statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify({
+        success: false,
+        error: "Missing OPENAI_API_KEY environment variable on the server."
+      })
+    };
+  }
+
+  if (!rubeAuthorization) {
+    return {
+      statusCode: 500,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify({
+        success: false,
+        error: "Missing RUBE_API_KEY environment variable (Bearer token) on the server."
+      })
     };
   }
 

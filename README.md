@@ -42,7 +42,7 @@ cp .env.example .env
 
 Edit `.env` and add your keys:
 - `OPENAI_API_KEY`: Your OpenAI API key
-- `RUBE_API_KEY`: Your Rube authorization key (replace REDACTED)
+- `RUBE_API_KEY`: Your Rube authorization key. Supply either the full `Bearer <token>` string from Rube or just the raw key (the server will add the `Bearer` prefix automatically).
 
 ### 4. Test locally
 
