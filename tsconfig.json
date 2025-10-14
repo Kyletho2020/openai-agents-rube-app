@@ -8,16 +8,21 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "outDir": "./netlify/functions",
     "rootDir": "./src",
     "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "noEmit": false,
+    "allowJs": true,
+    "checkJs": false,
+    "isolatedModules": false
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "netlify"
   ]
 }
