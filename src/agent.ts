@@ -38,7 +38,9 @@ const myAgent = new Agent({
 type WorkflowInput = { input_as_text: string };
 
 // Main code entrypoint
-export const runWorkflow = async (workflow: WorkflowInput): Promise<string> => {
+export const runWorkflow = async (workflow: WorkflowInput) => {
+  const state = {};
+
   const conversationHistory: AgentInputItem[] = [
     {
       role: "user",
@@ -58,17 +60,25 @@ export const runWorkflow = async (workflow: WorkflowInput): Promise<string> => {
     }
   });
 
-  const myAgentResultTemp = await runner.run(myAgent, conversationHistory);
+  const myAgentResultTemp = await runner.run(
+    myAgent,
+    [...conversationHistory]
+  );
+
   conversationHistory.push(...myAgentResultTemp.newItems.map((item) => item.rawItem));
 
   if (!myAgentResultTemp.finalOutput) {
     throw new Error("Agent result is undefined");
   }
 
-  return myAgentResultTemp.finalOutput;
+  const myAgentResult = {
+    output_text: myAgentResultTemp.finalOutput ?? ""
+  };
+
+  return myAgentResult;
 };
 
-// Netlify Function Handler
+// Netlify Function Handler - wraps your agent
 export const handler: Handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === "OPTIONS") {
@@ -86,7 +96,7 @@ export const handler: Handler = async (event, context) => {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: "Method not allowed" })
+      body: JSON.stringify({ error: "Method not allowed. Use POST." })
     };
   }
 
@@ -97,10 +107,13 @@ export const handler: Handler = async (event, context) => {
     if (!input) {
       return {
         statusCode: 400,
-        body: JSON.stringify({ error: "Missing input parameter" })
+        body: JSON.stringify({ 
+          error: "Missing input parameter. Send: { \"input\": \"your message\" }" 
+        })
       };
     }
 
+    // Run your workflow
     const result = await runWorkflow({ input_as_text: input });
 
     return {
@@ -111,11 +124,11 @@ export const handler: Handler = async (event, context) => {
       },
       body: JSON.stringify({ 
         success: true,
-        output: result 
+        output: result.output_text
       })
     };
   } catch (error: any) {
-    console.error("Error:", error);
+    console.error("Error running agent:", error);
     return {
       statusCode: 500,
       headers: {
@@ -124,7 +137,7 @@ export const handler: Handler = async (event, context) => {
       },
       body: JSON.stringify({ 
         success: false,
-        error: error.message 
+        error: error.message || "Unknown error occurred"
       })
     };
   }
