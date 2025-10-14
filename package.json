@@ -1,0 +1,23 @@
+{
+  "name": "openai-agents-rube-app",
+  "version": "1.0.0",
+  "description": "OpenAI Agents SDK app with Rube MCP integration",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "netlify dev",
+    "deploy": "netlify deploy --prod"
+  },
+  "dependencies": {
+    "@openai/agents": "^0.1.0"
+  },
+  "devDependencies": {
+    "@netlify/functions": "^2.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
